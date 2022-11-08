@@ -40,6 +40,13 @@ async function run() {
         })
 
 
+        //service homepage
+        app.get('/serviceshome', async (req, res) => {
+            const query = {};
+            const cursor = serviceCollection.find(query)
+            const services = await cursor.limit(3).toArray()
+            res.send(services)
+        })
 
     } finally {
         //   await client.close();
