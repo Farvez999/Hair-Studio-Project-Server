@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-// const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
@@ -15,12 +15,33 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.mordayw.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-
+// function verifyJWT(req, res, next) {
+//     const authHeader = req.headers.authorization;
+//     if (!authHeader) {
+//         return res.status(401).send({ message: 'unauthorized access' })
+//     }
+//     const token = authHeader.split(' ')[1];
+//     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+//         if (err) {
+//             return res.status(401).send({ message: 'unauthorized access' })
+//         }
+//         req.decoded = decoded;
+//         next();
+//     })
+// }
 
 async function run() {
     try {
         const serviceCollection = client.db('cuteCut').collection('services');
         const reviewsCollection = client.db('cuteCut').collection('reviews');
+
+
+        //JWT  Token
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
+            res.send({ token })
+        })
 
 
         //all data read
@@ -64,12 +85,14 @@ async function run() {
 
         //all data reviews
         app.get('/reviews', async (req, res) => {
+            console.log(req.headers)
             const query = {};
             const cursor = reviewsCollection.find(query)
             const reviews = await cursor.toArray()
             res.send(reviews)
         })
 
+        //single review data
         app.get('/reviews/:id', async (req, res) => {
             const query = req.params.id
             console.log(query)
