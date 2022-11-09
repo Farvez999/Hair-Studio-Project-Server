@@ -48,6 +48,12 @@ async function run() {
             res.send(services)
         })
 
+        app.post('/services', async (req, res) => {
+            const order = req.body;
+            const result = await serviceCollection.insertOne(order)
+            res.send(result);
+        })
+
     } finally {
         //   await client.close();
     }
