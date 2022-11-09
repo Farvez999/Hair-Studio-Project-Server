@@ -20,7 +20,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const serviceCollection = client.db('cuteCut').collection('services');
-        // const ordersCollection = client.db('geniusCar').collection('orders');
+        const reviewsCollection = client.db('cuteCut').collection('reviews');
 
 
         //all data read
@@ -43,15 +43,39 @@ async function run() {
         //service homepage
         app.get('/serviceshome', async (req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query)
+            const cursor = serviceCollection.find(query).sort({ $natural: -1 })
             const services = await cursor.limit(3).toArray()
             res.send(services)
         })
 
+        //Create a single service
         app.post('/services', async (req, res) => {
-            const order = req.body;
-            const result = await serviceCollection.insertOne(order)
+            const addService = req.body;
+            const result = await serviceCollection.insertOne(addService)
             res.send(result);
+        })
+
+        //Create a single reviews
+        app.post('/reviews', async (req, res) => {
+            const addReviews = req.body;
+            const result = await reviewsCollection.insertOne(addReviews)
+            res.send(result);
+        })
+
+        //all data reviews
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewsCollection.find(query)
+            const reviews = await cursor.toArray()
+            res.send(reviews)
+        })
+
+        app.get('/reviews/:id', async (req, res) => {
+            const query = req.params.id
+            console.log(query)
+            const cursor = reviewsCollection.find({ service: query }).sort({ _id: -1 })
+            const reviews = await cursor.toArray()
+            res.send(reviews)
         })
 
     } finally {
