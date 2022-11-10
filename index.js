@@ -47,8 +47,8 @@ async function run() {
         //all data read
         app.get('/services', async (req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query)
-            const services = await cursor.toArray()
+            const cursors = serviceCollection.find(query).sort({ $natural: -1 })
+            const services = await cursors.toArray()
             res.send(services)
         })
 
@@ -105,12 +105,12 @@ async function run() {
         // })
 
 
-        app.get('/reviews', async (req, res) => {
+        app.get('/reviews', verifyJWT, (req, res) => {
             //JWT  Token
-            // const decoded = req.decoded;
-            // if (decoded.email !== req.query.email) {
-            //     res.status(403).send({ message: 'unauthorized access' })
-            // }
+            const decoded = req.decoded;
+            if (decoded.email !== req.query.email) {
+                res.status(403).send({ message: 'unauthorized access' })
+            }
 
             let query = {}
             if (req.query.email) {
@@ -144,6 +144,30 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await reviewsCollection.deleteOne(query);
             console.log(result)
+            res.send(result);
+        })
+
+        //get edit review usign id
+        app.get('/review/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const review = await reviewsCollection.findOne(query)
+            res.send(review)
+        })
+
+
+
+        app.put('/review/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const details = req.body;
+            const option = { upsert: true };
+            const updatedUser = {
+                $set: {
+                    review: details.review
+                }
+            }
+            const result = await reviewsCollection.updateOne(filter, updatedUser, option);
             res.send(result);
         })
 
