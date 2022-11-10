@@ -47,7 +47,7 @@ async function run() {
         //all data read
         app.get('/services', async (req, res) => {
             const query = {};
-            const cursors = serviceCollection.find(query).sort({ $natural: -1 })
+            const cursors = serviceCollection.find(query).sort({ $time: -1 })
             const services = await cursors.toArray()
             res.send(services)
         })
@@ -105,7 +105,7 @@ async function run() {
         // })
 
 
-        app.get('/reviews', verifyJWT, (req, res) => {
+        app.get('/reviews', verifyJWT, async (req, res) => {
             //JWT  Token
             const decoded = req.decoded;
             if (decoded.email !== req.query.email) {
