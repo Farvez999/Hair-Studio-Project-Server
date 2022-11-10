@@ -78,10 +78,12 @@ async function run() {
 
         //Create a single reviews
         app.post('/reviews', async (req, res) => {
-            const addReviews = req.body;
-            const result = await reviewsCollection.insertOne(addReviews)
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review)
             res.send(result);
         })
+
+
 
 
         //all data reviews
@@ -118,24 +120,43 @@ async function run() {
                     email: req.query.email
                 }
             }
-            if (req.query.serviceId) {
-                query = {
-                    serviceId: req.query.serviceId
-                }
-            }
             const cursor = reviewsCollection.find(query).sort({ _id: -1 })
             const allReview = await cursor.toArray()
             res.send(allReview)
         })
 
-        //single review data
 
         app.get('/reviews/:id', async (req, res) => {
-            const id = req.params.id;
+            const id = req.params.id
+            // console.log(query)
             const query = { _id: ObjectId(id) };
             const review = await reviewsCollection.findOne(query)
             res.send(review)
         })
+
+
+        // app.get('/reviewsService', async (req, res) => {
+
+        //     let query = {}
+        //     if (req.query.service) {
+        //         query = {
+        //             service: req.query.service
+        //         }
+        //     }
+        //     const cursor = reviewsCollection.find(query).sort({ _id: -1 })
+        //     const allReview = await cursor.toArray()
+        //     res.send(allReview)
+        // })
+
+        //single review data
+
+        // app.get('/reviews/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     console.log(id)
+        //     const query = { _id: ObjectId(id) };
+        //     const review = await reviewsCollection.findOne(query)
+        //     res.send(review)
+        // })
 
         //delete review
 
